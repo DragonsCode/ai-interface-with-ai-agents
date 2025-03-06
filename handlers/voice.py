@@ -31,4 +31,4 @@ async def voice_audio_handler(message: Message, swarm_client: Swarm, api_key: st
         messages=messages,
         context_variables={"user_id": message.from_user.id}
     )
-    await message.answer(f"{response.agent.name}: "+response.messages[-1]["content"])
+    await message.answer(f"{response.agent.name}: "+response.messages[-1]["content"], parse_mode="Markdown")

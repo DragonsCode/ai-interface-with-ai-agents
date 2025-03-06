@@ -28,4 +28,4 @@ async def messages_handler(message: Message, swarm_client: Swarm):
     )
 
     save_to_db(message.text, response.messages[-1]["content"], {"user_id": message.from_user.id})
-    await message.answer(f"{response.agent.name}: "+response.messages[-1]["content"])
+    await message.answer(f"{response.agent.name}: "+response.messages[-1]["content"], parse_mode="Markdown")
