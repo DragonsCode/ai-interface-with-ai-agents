@@ -34,7 +34,7 @@ def get_tasks(only_open: bool, context_variables):
         tasks = db.get_tasks(user_id, only_open)
         if not tasks:
             return "У вас нет задач."
-        return "\n".join(f"Задача {task_id}: '{task_text}', дедлайн: {deadline} ({'Выполнена' if is_done else 'Открыта'})" 
+        return "\n".join(f"Задача {task_id}: '{task_text}', ID задачи: {task_id}, дедлайн: {deadline} ({'Выполнена' if is_done else 'Открыта'})" 
                          for task_id, task_text, deadline, is_done in tasks)
 
 def mark_task_done(task_id: int, context_variables):
