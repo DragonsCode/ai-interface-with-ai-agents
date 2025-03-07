@@ -24,6 +24,7 @@ def save_to_db(prompt, message, context_variables):
 
 
 def get_intent_agent():
+    """Этот агент отвечает за определение намерения пользователя и общение с ним."""
     return Agent(
         name="IntentAgent",
         model="gpt-4o-mini",

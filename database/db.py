@@ -10,6 +10,7 @@ from .models.order_item import OrderItem
 from .models.note import Note
 from .models.schedule import Schedule
 from .models.task import Task
+from .models.menu import Menu
 
 class Database(BaseDBApi):
     def save_message(self, user_id: int, message: str, response: str):
@@ -138,3 +139,11 @@ class Database(BaseDBApi):
             Task.__table__.delete().where(Task.user_id == user_id)
         )
         self._sess.commit()
+    
+    def get_menu(self) -> List[Tuple[int, str, str, str, bool]]:
+        result = self._sess.execute(
+            select(Menu)
+            .order_by(Menu.name.asc())
+        )
+        menu = result.scalars().all()
+        return [(item.id, item.name, item.description, str(item.price) + " UZS", item.is_available) for item in menu]

@@ -30,6 +30,7 @@ def clear_notes(context_variables):
     return "Все заметки очищены."
 
 def get_note_agent():
+    """Этот агент отвечает за управление заметками."""
     return Agent(
         name="NoteAgent",
         model="gpt-4o-mini",

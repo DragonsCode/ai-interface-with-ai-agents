@@ -2,6 +2,36 @@ from swarm import Agent
 from database.db import Database
 from datetime import datetime
 import json
+import requests
+
+from config import TG_BOT_TOKEN, scheduler
+
+def send_reminder(user_id, event_text):
+    """Функция для отправки напоминания."""
+    url = f'https://api.telegram.org/bot{TG_BOT_TOKEN}/sendMessage'
+    data = {
+        'chat_id': user_id,
+        'text': f"Напоминание о событии:\n{event_text}"
+    }
+    requests.post(url, json=data)
+
+def schedule_reminder(user_id, event_text, reminder_time):
+    """Запланировать напоминание в указанное агентом время."""
+    try:
+        reminder_time_dt = datetime.fromisoformat(reminder_time)
+        now = datetime.now()
+
+        if reminder_time_dt > now:
+            scheduler.add_job(
+                send_reminder,
+                'date',
+                run_date=reminder_time_dt,
+                args=[user_id, event_text]
+            )
+            return f"Напоминание запланировано на {reminder_time_dt.strftime('%Y-%m-%d %H:%M:%S')}."
+        return "Напоминание не установлено, так как событие в прошлом."
+    except ValueError:
+        return "Ошибка: некорректный формат времени напоминания."
 
 def save_event(event_data, context_variables):
     """
@@ -18,7 +48,10 @@ def save_event(event_data, context_variables):
         event_datetime = data["event_datetime"]
         with Database() as db:
             db.save_event(user_id, event_text, event_datetime)
-        return f"Событие '{event_text}' добавлено на {event_datetime}."
+
+        result = schedule_reminder(user_id, event_text, event_datetime)
+
+        return f"Событие '{event_text}' добавлено на {event_datetime}.\n{result}"
     except Exception as e:
         return f"Ошибка: {str(e)}. Укажите событие и время в формате 'YYYY-MM-DDTHH:MM:SS'."
 
@@ -40,6 +73,7 @@ def clear_events(context_variables):
     return "Все события очищены."
 
 def get_schedule_agent():
+    """Этот агент отвечает за управление расписанием событий."""
     now = datetime.now()
     return Agent(
         name="ScheduleAgent",
