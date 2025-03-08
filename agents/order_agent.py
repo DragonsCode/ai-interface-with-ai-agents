@@ -21,15 +21,17 @@ def process_order(order_data: list[dict], context_variables):
     Сохраняет заказ в базе данных и возвращает подтверждение.
 
     Args:
-    order_data: список, содержащий информацию о заказе. в формате 
-    [{"name": "Товар 1", "quantity": 2}, {"name": "Товар 2", "quantity": 3}]
+    order_data: список, содержащий информацию о заказе исходя из ID в меню и количества. в формате 
+    [{"menu_id": 1, "quantity": 2}, {"menu_id": 2, "quantity": 3}]
     """
     user_id = context_variables["user_id"]
     try:
         data = json.loads(order_data)
-        items = [(item["name"], item["quantity"]) for item in data]
+        items = [(item["menu_id"], item["quantity"]) for item in data]
         with Database() as db:
             db.save_order(user_id, items)
+            menu = db.get_menu()
+        items = [(menu[int(menu_id)][1], qty) for menu_id, qty in items]
         items_str = ", ".join(f"{qty} x {name}" for name, qty in items)
         return f"Заказ успешно принят: {items_str}"
     except Exception as e:

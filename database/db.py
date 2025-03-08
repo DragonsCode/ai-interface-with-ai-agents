@@ -34,12 +34,12 @@ class Database(BaseDBApi):
         )
         self._sess.commit()
 
-    def save_order(self, user_id: int, order_items: List[Tuple[str, int]]):
+    def save_order(self, user_id: int, order_items: List[Tuple[int, int]]):
         order = Order(user_id=user_id)
         self._sess.add(order)
         self._sess.flush()  # Получаем order.id
-        for item_name, quantity in order_items:
-            order_item = OrderItem(order_id=order.id, item_name=item_name, quantity=quantity)
+        for menu_id, quantity in order_items:
+            order_item = OrderItem(order_id=order.id, menu_id=menu_id, quantity=quantity)
             self._sess.add(order_item)
         self._sess.commit()
 
@@ -57,7 +57,7 @@ class Database(BaseDBApi):
                 .where(OrderItem.order_id == order.id)
             )
             items = items_result.scalars().all()
-            orders_list.append((order.id, [(item.id, item.item_name, item.quantity) for item in items]))
+            orders_list.append((order.id, [(item.id, item.menu_id, item.quantity) for item in items]))
         return orders_list
 
     def clear_orders(self, user_id: int):
